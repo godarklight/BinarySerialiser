@@ -82,10 +82,6 @@ namespace MessageStream
             {
                 return (T)(object)ReadByteArray();
             }
-            if (typeof(T) == typeof(string))
-            {
-                return (T)(object)ReadString();
-            }
             throw new IOException("Type not supported");
         }
 
