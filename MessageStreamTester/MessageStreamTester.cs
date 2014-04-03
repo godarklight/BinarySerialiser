@@ -27,6 +27,10 @@ namespace MessageStreamTester
             doubleArrayTest[0] = Math.PI;
             doubleArrayTest[1] = Math.PI + 1;
             doubleArrayTest[2] = Math.PI + 2;
+            string stringTest = "This is a string";
+            string[] stringArrayTest = new string[2];
+            stringArrayTest[0] = "This is a";
+            stringArrayTest[1] = "string array";
             byte[] byteArrayTest = new byte[1024];
             r.NextBytes(byteArrayTest);
             byte[] messageBytes;
@@ -43,6 +47,8 @@ namespace MessageStreamTester
                 mw.Write<double>(doubleTest);
                 mw.Write<float[]>(floatArrayTest);
                 mw.Write<double[]>(doubleArrayTest);
+                mw.Write<string>(stringTest);
+                mw.Write<string[]>(stringArrayTest);
                 mw.Write<byte[]>(byteArrayTest);
                 messageBytes = mw.GetMessageBytes();
             }
@@ -59,6 +65,8 @@ namespace MessageStreamTester
                 double doubleReturn = mr.Read<double>();
                 float[] floatArrayReturn = mr.Read<float[]>();
                 double[] doubleArrayReturn = mr.Read<double[]>();
+                string stringReturn = mr.Read<string>();
+                string[] stringArrayReturn = mr.Read<string[]>();
                 byte[] byteArrayReturn = mr.Read<byte[]>();
                 //Uncomment this to make it throw an exception.
                 //mr.Read<byte>();
@@ -140,20 +148,40 @@ namespace MessageStreamTester
                 //Float array test
                 if (floatArrayReturn.SequenceEqual(floatArrayTest))
                 {
-                    Console.WriteLine("Float array is correct: " + floatArrayReturn[0] + "," + floatArrayReturn[1] + "," + floatArrayReturn[2] + "," + floatArrayReturn[3]);
+                    Console.WriteLine("Float array is correct: [" + floatArrayReturn[0] + "," + floatArrayReturn[1] + "," + floatArrayReturn[2] + "," + floatArrayReturn[3] + "]");
                 }
                 else
                 {
-                    Console.WriteLine("WARNING: Float array failed: " + floatArrayReturn[0] + "," + floatArrayReturn[1] + "," + floatArrayReturn[2] + "," + floatArrayReturn[3]);
+                    Console.WriteLine("WARNING: Float array failed: [" + floatArrayReturn[0] + "," + floatArrayReturn[1] + "," + floatArrayReturn[2] + "," + floatArrayReturn[3] + "]");
                 }
+                //Double array test
                 if (doubleArrayReturn.SequenceEqual(doubleArrayTest))
                 {
-                    Console.WriteLine("Double array is correct: " + doubleArrayReturn[0] + "," + doubleArrayReturn[1] + "," + doubleArrayReturn[2]);
+                    Console.WriteLine("Double array is correct: [" + doubleArrayReturn[0] + "," + doubleArrayReturn[1] + "," + doubleArrayReturn[2] + "]");
                 }
                 else
                 {
-                    Console.WriteLine("WARNING: Double array failed: " + doubleArrayReturn[0] + "," + doubleArrayReturn[1] + "," + doubleArrayReturn[2]);
+                    Console.WriteLine("WARNING: Double array failed: [" + doubleArrayReturn[0] + "," + doubleArrayReturn[1] + "," + doubleArrayReturn[2] + "]");
                 }
+                //String test
+                if (stringReturn == stringTest)
+                {
+                    Console.WriteLine("String is correct: " + stringReturn);
+                }
+                else
+                {
+                    Console.WriteLine("WARNING: String failed: " + stringReturn);
+                }
+                //String array test
+                if (stringArrayReturn.SequenceEqual(stringArrayTest))
+                {
+                    Console.WriteLine("String array is correct: [" + stringArrayReturn[0] + "," + stringArrayReturn[1] + "]");
+                }
+                else
+                {
+                    Console.WriteLine("WARNING: String array failed: [" + stringArrayReturn[0] + "," + stringArrayReturn[1] + "]");
+                }
+                //Byte array test
                 if (byteArrayReturn.SequenceEqual(byteArrayTest))
                 {
                     Console.WriteLine("Byte array is correct: " + byteArrayReturn.Length + " bytes");

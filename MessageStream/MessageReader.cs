@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 
 namespace MessageStream
 {
@@ -8,6 +9,7 @@ namespace MessageStream
         private int messageType;
         private int messageLength;
         private MemoryStream messageData;
+        UnicodeEncoding encoder = new UnicodeEncoding();
         //Constructor
         public MessageReader(byte[] messageData, bool includeHeader)
         {
@@ -28,7 +30,6 @@ namespace MessageStream
         {
             return messageLength;
         }
-
         //Writers
         public T Read<T>()
         {
@@ -69,11 +70,23 @@ namespace MessageStream
             {
                 return (T)(object)ReadDoubleArray();
             }
+            if (typeof(T) == typeof(string))
+            {
+                return (T)(object)ReadString();
+            }
+            if (typeof(T) == typeof(string[]))
+            {
+                return (T)(object)ReadStringArray();
+            }
             if (typeof(T) == typeof(byte[]))
             {
                 return (T)(object)ReadByteArray();
             }
-            throw new IOException("Type not supported in deserialiser");
+            if (typeof(T) == typeof(string))
+            {
+                return (T)(object)ReadString();
+            }
+            throw new IOException("Type not supported");
         }
 
         private short ReadShort()
@@ -135,7 +148,6 @@ namespace MessageStream
         private float[] ReadFloatArray()
         {
             int numberOfElements = ReadInt();
-            CheckDataLeft(sizeof(float) * numberOfElements);
             float[] outputData = new float[numberOfElements];
             for (int element = 0; element < numberOfElements; element++)
             {
@@ -147,11 +159,29 @@ namespace MessageStream
         private double[] ReadDoubleArray()
         {
             int numberOfElements = ReadInt();
-            CheckDataLeft(sizeof(double) * numberOfElements);
             double[] outputData = new double[numberOfElements];
             for (int element = 0; element < numberOfElements; element++)
             {
                 outputData[element] = ReadDouble();
+            }
+            return outputData;
+        }
+
+        private string ReadString()
+        {
+            byte[] outputData = ReadByteArray();
+            string outputString;
+            outputString = encoder.GetString(outputData);
+            return outputString;
+        }
+
+        private string[] ReadStringArray()
+        {
+            int numberOfElements = ReadInt();
+            string[] outputData = new string[numberOfElements];
+            for (int element = 0; element < numberOfElements; element++)
+            {
+                outputData[element] = ReadString();
             }
             return outputData;
         }

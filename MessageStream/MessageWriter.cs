@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 
 namespace MessageStream
 {
@@ -8,6 +9,7 @@ namespace MessageStream
         private int messageType;
         private bool includeHeader;
         private MemoryStream messageData;
+        UnicodeEncoding encoder = new UnicodeEncoding();
         //Constructor
         public MessageWriter(int messageType, bool includeHeader)
         {
@@ -35,58 +37,68 @@ namespace MessageStream
         public void Write<T>(T inputData)
         {
             //Apparently switches can't type type parameters?
-            if (inputData.GetType() == typeof(short))
+            if (typeof(T) == typeof(short))
             {
                 WriteShort((short)(object)inputData);
                 return;
             }
 
-            if (inputData.GetType() == typeof(int))
+            if (typeof(T) == typeof(int))
             {
                 WriteInt((int)(object)inputData);
                 return;
             }
-            if (inputData.GetType() == typeof(long))
+            if (typeof(T) == typeof(long))
             {
                 WriteLong((long)(object)inputData);
                 return;
             }
-            if (inputData.GetType() == typeof(float))
+            if (typeof(T) == typeof(float))
             {
                 WriteFloat((float)(object)inputData);
                 return;
             }
-            if (inputData.GetType() == typeof(double))
+            if (typeof(T) == typeof(double))
             {
                 WriteDouble((double)(object)inputData);
                 return;
             }
-            if (inputData.GetType() == typeof(bool))
+            if (typeof(T) == typeof(bool))
             {
                 WriteBool((bool)(object)inputData);
                 return;
             }
-            if (inputData.GetType() == typeof(byte))
+            if (typeof(T) == typeof(byte))
             {
                 WriteByte((byte)(object)inputData);
                 return;
             }
-            if (inputData.GetType() == typeof(float[]))
+            if (typeof(T) == typeof(float[]))
             {
                 WriteFloatArray((float[])(object)inputData);
                 return;
             }
-            if (inputData.GetType() == typeof(double[]))
+            if (typeof(T) == typeof(double[]))
             {
                 WriteDoubleArray((double[])(object)inputData);
                 return;
             }
-            if (inputData.GetType() == typeof(byte[]))
+            if (typeof(T) == typeof(string))
+            {
+                WriteString((string)(object)inputData);
+                return;
+            }
+            if (typeof(T) == typeof(string[]))
+            {
+                WriteStringArray((string[])(object)inputData);
+                return;
+            }
+            if (typeof(T) == typeof(byte[]))
             {
                 WriteByteArray((byte[])(object)inputData);
                 return;
             }
-            throw new IOException("Type not supported in serialiser");
+            throw new IOException("Type not supported");
         }
 
         private void WriteShort(short inputData)
@@ -141,6 +153,21 @@ namespace MessageStream
             foreach (double element in inputData)
             {
                 WriteDouble(element);
+            }
+        }
+
+        private void WriteString(string inputData)
+        {
+            byte[] inputDataArray = encoder.GetBytes(inputData);
+            WriteByteArray(inputDataArray);
+        }
+
+        private void WriteStringArray(string[] inputData)
+        {
+            WriteInt(inputData.Length);
+            foreach (string element in inputData)
+            {
+                WriteString(element);
             }
         }
 
