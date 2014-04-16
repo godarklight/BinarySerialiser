@@ -24,7 +24,7 @@ namespace MessageStream
             {
                 byte[] returnData = new byte[8 + messageData.Length];
                 BitConverter.GetBytes(messageType).CopyTo(returnData, 0);
-                BitConverter.GetBytes(messageData.Length).CopyTo(returnData, 4);
+                BitConverter.GetBytes((int)messageData.Length).CopyTo(returnData, 4);
                 messageData.ToArray().CopyTo(returnData, 8);
                 return returnData;
             }
@@ -158,6 +158,11 @@ namespace MessageStream
 
         private void WriteString(string inputData)
         {
+            //Protect against empty strings
+            if (inputData == null)
+            {
+                inputData = "";
+            }
             byte[] inputDataArray = encoder.GetBytes(inputData);
             WriteByteArray(inputDataArray);
         }

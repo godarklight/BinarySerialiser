@@ -35,7 +35,7 @@ namespace MessageStreamTester
             r.NextBytes(byteArrayTest);
             byte[] messageBytes;
 
-            using (MessageWriter mw = new MessageWriter(messageType, false))
+            using (MessageWriter mw = new MessageWriter(messageType, true))
             {
                 mw.Write<short>(shortTest);
                 mw.Write<int>(intTest);
@@ -50,10 +50,11 @@ namespace MessageStreamTester
                 mw.Write<string>(stringTest);
                 mw.Write<string[]>(stringArrayTest);
                 mw.Write<byte[]>(byteArrayTest);
+                mw.Write<string>(null);
                 messageBytes = mw.GetMessageBytes();
             }
-
-            using (MessageReader mr = new MessageReader(messageBytes, false))
+            Console.WriteLine(messageBytes.Length);
+            using (MessageReader mr = new MessageReader(messageBytes, true))
             {
                 short shortReturn = mr.Read<short>();
                 int intReturn = mr.Read<int>();
@@ -68,6 +69,7 @@ namespace MessageStreamTester
                 string stringReturn = mr.Read<string>();
                 string[] stringArrayReturn = mr.Read<string[]>();
                 byte[] byteArrayReturn = mr.Read<byte[]>();
+                string testEmptyString = mr.Read<string>();
                 //Uncomment this to make it throw an exception.
                 //mr.Read<byte>();
                 Console.WriteLine("Message Type: " + mr.GetMessageType());
@@ -189,6 +191,10 @@ namespace MessageStreamTester
                 else
                 {
                     Console.WriteLine("WARNING: Byte array failed: " + byteArrayReturn.Length);
+                }
+                if (testEmptyString == "")
+                {
+                    Console.WriteLine("Null string test passed!");
                 }
             }
         }
