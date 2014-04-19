@@ -42,7 +42,6 @@ namespace MessageStream
                 WriteShort((short)(object)inputData);
                 return;
             }
-
             if (typeof(T) == typeof(int))
             {
                 WriteInt((int)(object)inputData);
@@ -73,6 +72,26 @@ namespace MessageStream
                 WriteByte((byte)(object)inputData);
                 return;
             }
+            if (typeof(T) == typeof(string))
+            {
+                WriteString((string)(object)inputData);
+                return;
+            }
+            if (typeof(T) == typeof(short[]))
+            {
+                WriteShortArray((short[])(object)inputData);
+                return;
+            }
+            if (typeof(T) == typeof(int[]))
+            {
+                WriteIntArray((int[])(object)inputData);
+                return;
+            }
+            if (typeof(T) == typeof(long[]))
+            {
+                WriteLongArray((long[])(object)inputData);
+                return;
+            }
             if (typeof(T) == typeof(float[]))
             {
                 WriteFloatArray((float[])(object)inputData);
@@ -83,19 +102,19 @@ namespace MessageStream
                 WriteDoubleArray((double[])(object)inputData);
                 return;
             }
-            if (typeof(T) == typeof(string))
+            if (typeof(T) == typeof(bool[]))
             {
-                WriteString((string)(object)inputData);
-                return;
-            }
-            if (typeof(T) == typeof(string[]))
-            {
-                WriteStringArray((string[])(object)inputData);
+                WriteBoolArray((bool[])(object)inputData);
                 return;
             }
             if (typeof(T) == typeof(byte[]))
             {
                 WriteByteArray((byte[])(object)inputData);
+                return;
+            }
+            if (typeof(T) == typeof(string[]))
+            {
+                WriteStringArray((string[])(object)inputData);
                 return;
             }
             throw new IOException("Type not supported");
@@ -138,6 +157,44 @@ namespace MessageStream
             messageData.Write(inputDataArray, 0, sizeof(byte));
         }
 
+        private void WriteString(string inputData)
+        {
+            //Protect against empty strings
+            if (inputData == null)
+            {
+                inputData = "";
+            }
+            byte[] inputDataArray = encoder.GetBytes(inputData);
+            WriteByteArray(inputDataArray);
+        }
+
+        private void WriteShortArray(short[] inputData)
+        {
+            WriteInt(inputData.Length);
+            foreach (short element in inputData)
+            {
+                WriteShort(element);
+            }
+        }
+
+        private void WriteIntArray(int[] inputData)
+        {
+            WriteInt(inputData.Length);
+            foreach (int element in inputData)
+            {
+                WriteInt(element);
+            }
+        }
+
+        private void WriteLongArray(long[] inputData)
+        {
+            WriteInt(inputData.Length);
+            foreach (long element in inputData)
+            {
+                WriteLong(element);
+            }
+        }
+
         private void WriteFloatArray(float[] inputData)
         {
             WriteInt(inputData.Length);
@@ -156,15 +213,19 @@ namespace MessageStream
             }
         }
 
-        private void WriteString(string inputData)
+        private void WriteBoolArray(bool[] inputData)
         {
-            //Protect against empty strings
-            if (inputData == null)
+            WriteInt(inputData.Length);
+            foreach (bool element in inputData)
             {
-                inputData = "";
+                WriteBool(element);
             }
-            byte[] inputDataArray = encoder.GetBytes(inputData);
-            WriteByteArray(inputDataArray);
+        }
+
+        private void WriteByteArray(byte[] inputData)
+        {
+            WriteInt(inputData.Length);
+            messageData.Write(inputData, 0, inputData.Length);
         }
 
         private void WriteStringArray(string[] inputData)
@@ -174,12 +235,6 @@ namespace MessageStream
             {
                 WriteString(element);
             }
-        }
-
-        private void WriteByteArray(byte[] inputData)
-        {
-            WriteInt(inputData.Length);
-            messageData.Write(inputData, 0, inputData.Length);
         }
 
         public void Dispose()

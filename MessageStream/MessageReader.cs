@@ -62,6 +62,22 @@ namespace MessageStream
             {
                 return (T)(object)ReadByte();
             }
+            if (typeof(T) == typeof(string))
+            {
+                return (T)(object)ReadString();
+            }
+            if (typeof(T) == typeof(short[]))
+            {
+                return (T)(object)ReadShortArray();
+            }
+            if (typeof(T) == typeof(int[]))
+            {
+                return (T)(object)ReadIntArray();
+            }
+            if (typeof(T) == typeof(long[]))
+            {
+                return (T)(object)ReadLongArray();
+            }
             if (typeof(T) == typeof(float[]))
             {
                 return (T)(object)ReadFloatArray();
@@ -70,17 +86,17 @@ namespace MessageStream
             {
                 return (T)(object)ReadDoubleArray();
             }
-            if (typeof(T) == typeof(string))
+            if (typeof(T) == typeof(bool[]))
             {
-                return (T)(object)ReadString();
-            }
-            if (typeof(T) == typeof(string[]))
-            {
-                return (T)(object)ReadStringArray();
+                return (T)(object)ReadBoolArray();
             }
             if (typeof(T) == typeof(byte[]))
             {
                 return (T)(object)ReadByteArray();
+            }
+            if (typeof(T) == typeof(string[]))
+            {
+                return (T)(object)ReadStringArray();
             }
             throw new IOException("Type not supported");
         }
@@ -141,6 +157,46 @@ namespace MessageStream
             return outputData[0];
         }
 
+        private string ReadString()
+        {
+            byte[] outputData = ReadByteArray();
+            string outputString;
+            outputString = encoder.GetString(outputData);
+            return outputString;
+        }
+
+        private short[] ReadShortArray()
+        {
+            int numberOfElements = ReadInt();
+            short[] outputData = new short[numberOfElements];
+            for (int element = 0; element < numberOfElements; element++)
+            {
+                outputData[element] = ReadShort();
+            }
+            return outputData;
+        }
+
+        private int[] ReadIntArray()
+        {
+            int numberOfElements = ReadInt();
+            int[] outputData = new int[numberOfElements];
+            for (int element = 0; element < numberOfElements; element++)
+            {
+                outputData[element] = ReadInt();
+            }
+            return outputData;
+        }
+        private long[] ReadLongArray()
+        {
+            int numberOfElements = ReadInt();
+            long[] outputData = new long[numberOfElements];
+            for (int element = 0; element < numberOfElements; element++)
+            {
+                outputData[element] = ReadLong();
+            }
+            return outputData;
+        }
+
         private float[] ReadFloatArray()
         {
             int numberOfElements = ReadInt();
@@ -163,12 +219,24 @@ namespace MessageStream
             return outputData;
         }
 
-        private string ReadString()
+        private bool[] ReadBoolArray()
         {
-            byte[] outputData = ReadByteArray();
-            string outputString;
-            outputString = encoder.GetString(outputData);
-            return outputString;
+            int numberOfElements = ReadInt();
+            bool[] outputData = new bool[numberOfElements];
+            for (int element = 0; element < numberOfElements; element++)
+            {
+                outputData[element] = ReadBool();
+            }
+            return outputData;
+        }
+
+        private byte[] ReadByteArray()
+        {
+            int numberOfElements = ReadInt();
+            CheckDataLeft(sizeof(byte) * numberOfElements);
+            byte[] outputData = new byte[numberOfElements];
+            messageData.Read(outputData, 0, numberOfElements);
+            return outputData;
         }
 
         private string[] ReadStringArray()
@@ -182,14 +250,7 @@ namespace MessageStream
             return outputData;
         }
 
-        private byte[] ReadByteArray()
-        {
-            int numberOfElements = ReadInt();
-            CheckDataLeft(sizeof(byte) * numberOfElements);
-            byte[] outputData = new byte[numberOfElements];
-            messageData.Read(outputData, 0, numberOfElements);
-            return outputData;
-        }
+
 
         private void CheckDataLeft(int size)
         {
