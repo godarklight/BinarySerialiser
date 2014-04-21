@@ -35,7 +35,7 @@ namespace MessageStreamTester
             r.NextBytes(byteArrayTest);
             byte[] messageBytes;
 
-            using (MessageWriter mw = new MessageWriter(messageType, true))
+            using (MessageWriter mw = new MessageWriter(messageType))
             {
                 mw.Write<short>(shortTest);
                 mw.Write<int>(intTest);

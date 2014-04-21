@@ -10,7 +10,22 @@ namespace MessageStream
         private bool includeHeader;
         private MemoryStream messageData;
         UnicodeEncoding encoder = new UnicodeEncoding();
-        //Constructor
+        //Constructors
+        public MessageWriter()
+        {
+            this.messageType = 0;
+            this.includeHeader = false;
+            messageData = new MemoryStream();
+        }
+
+        public MessageWriter(int messageType)
+        {
+            this.messageType = messageType;
+            this.includeHeader = true;
+            messageData = new MemoryStream();
+        }
+
+        [Obsolete("Use the int constructor to specify a header, or no parameters to make it headerless.")]
         public MessageWriter(int messageType, bool includeHeader)
         {
             this.messageType = messageType;
