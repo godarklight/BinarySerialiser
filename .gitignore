@@ -2,5 +2,7 @@ MessageStreamTester/bin/*
 MessageStreamTester/obj/*
 MessageStream/bin/*
 MessageStream/obj/*
+DotNet/bin/*
+DotNet/obj/*
 MessageStream.userprefs
 *.suo
